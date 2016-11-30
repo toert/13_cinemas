@@ -2,9 +2,12 @@ import bs4
 import requests
 import time
 
+ARTHOUSE_NUMBER = 15
+TIME_OF_TIMEOUT = 13
 TOP = 10
 AFISHA_URL = 'http://www.afisha.ru/msk/schedule_cinema/'
 KINOPOISK_SEARCH_URL = 'https://www.kinopoisk.ru/index.php?first=yes&what=&kp_query='
+
 
 def fetch_afisha_page():
     request_to_afisha = requests.get(AFISHA_URL).content
@@ -21,19 +24,15 @@ def parse_afisha_list(raw_html):
 
 
 def is_it_arthouse(soup_film):
-    if len(soup_film.find_all('tr')) < 15:
-        return True
-    else:
-        return False
+    return len(soup_film.find_all('tr')) < ARTHOUSE_NUMBER
 
 
 def fetch_movie_info(movie_title):
     url_search = '{0}{1}'.format(KINOPOISK_SEARCH_URL, movie_title)
-    r = requests.get(url_search, timeout=10).content
+    r = requests.get(url_search).content
     soup = bs4.BeautifulSoup(r, 'html.parser')
     average_rating = soup.find('span', class_='rating_ball').text
     voters_score = soup.find('span', class_='ratingCount').text
-    time.sleep(5) #timeout, because Kinopoisk prefers to ban your IP(DDOS protect)
     return (movie_title, float(average_rating), voters_score)
 
 
@@ -49,4 +48,5 @@ if __name__ == '__main__':
     movies_info = []
     for movie in movies:
         movies_info.append(fetch_movie_info(movie))
+        time.sleep(TIME_OF_TIMEOUT) #timeout, because Kinopoisk prefers to ban your IP(DDOS protect)
     output_movies_to_console(movies_info)
