@@ -29,8 +29,8 @@ def is_it_arthouse(soup_film):
 
 def fetch_movie_info(movie_title):
     url_search = '{0}{1}'.format(KINOPOISK_SEARCH_URL, movie_title)
-    r = requests.get(url_search).content
-    soup = bs4.BeautifulSoup(r, 'html.parser')
+    request_to_kinopoisk = requests.get(url_search).content
+    soup = bs4.BeautifulSoup(request_to_kinopoisk, 'html.parser')
     average_rating = soup.find('span', class_='rating_ball').text
     voters_score = soup.find('span', class_='ratingCount').text
     return (movie_title, float(average_rating), voters_score)
